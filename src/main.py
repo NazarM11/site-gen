@@ -1,26 +1,29 @@
 import os
 import shutil
+import sys 
 
 from textnode import *
 from blocktype import *
 
+basepath = sys.argv[1] if len(sys.argv) > 1 else '/'
+
 def main():
     copy_static()
-    generate_pages_recursived("content", "public")
+    generate_pages_recursived("content", "docs", basepath)
 
 def copy_static():
-    shutil.rmtree("public")
-    os.mkdir("public")
-    copy_files_recursive("static", "public")
+    shutil.rmtree("docs")
+    os.mkdir("docs")
+    copy_files_recursive("static", "docs")
     
-def generate_pages_recursived(source, dest):
+def generate_pages_recursived(source, dest, basepath):
     for item in os.listdir(source):
         path = os.path.join(source, item)
         dest_path = os.path.join(dest, item)
         if os.path.isfile(path):  
-            generate_page(path, "template.html", dest_path.replace(".md", ".html"))
+            generate_page(path, "template.html", dest_path.replace(".md", ".html"), basepath)
         else:
-            generate_pages_recursived(path, dest_path)
+            generate_pages_recursived(path, dest_path, basepath)
 
 def copy_files_recursive(source, dest):
     for item in os.listdir(source):
@@ -40,9 +43,9 @@ def extract_title(markdown):
             return stripped_line
     raise Exception("No header found")
 
-def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
-    with open (from_path) as f:
+def generate_page(source_path, template_path, dest_path, basepath):
+    print(f"Generating page from {source_path} to {dest_path} using {template_path}")
+    with open (source_path) as f:
         markdown = f.read()
         f.close()
     with open (template_path) as f:
@@ -52,6 +55,8 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(markdown)
     result = template.replace("{{ Title }}", title)
     result = result.replace("{{ Content }}", content)
+    result = result.replace('href="/', f'href="{basepath}')
+    result = result.replace('src="/', f'src="{basepath}')
     dir = os.path.dirname(dest_path)
     if dir:
         os.makedirs(dir, exist_ok=True)
