@@ -19,7 +19,7 @@ Since this project uses only the Python Standard Library, there is no setup requ
 
     Clone the repository:
 
-    git clone https://github.com/NazarM11/MD-to-HTML.git
+    git clone https://github.com/NazarM11/MD-to-HTML-.git
     cd MD-to-HTML
 
     Verify Python version:
